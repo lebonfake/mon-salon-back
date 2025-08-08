@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,9 +18,9 @@ public class Reservation {
 
     private LocalDate date;  // Creation date
 
-    private LocalDateTime startDate;
+    private LocalDateTime startTime;
 
-    private LocalDateTime endDate;
+    private LocalDateTime endTime;
 
     private BigDecimal total;
 
@@ -43,15 +44,15 @@ public class Reservation {
             joinColumns = @JoinColumn(name = "reservation_id"),
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
-    private Set<Service> services = new HashSet<>();
+    private Set<Services> services = new HashSet<>();
 
     // Constructors
     public Reservation() {}
 
-    public Reservation(LocalDate date, LocalDateTime startDate, LocalDateTime endDate, BigDecimal total, ReservationStatus status, Salon salon, Client client, Set<Service> services) {
+    public Reservation(LocalDate date, LocalDateTime startDate, LocalDateTime endDate, BigDecimal total, ReservationStatus status, Salon salon, Client client, Set<Services> services) {
         this.date = date;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.startTime = startDate;
+        this.endTime = endDate;
         this.total = total;
         this.status = status;
         this.salon = salon;
@@ -71,19 +72,6 @@ public class Reservation {
         this.date = date;
     }
 
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
-    }
 
     public BigDecimal getTotal() {
         return total;
@@ -113,10 +101,30 @@ public class Reservation {
         this.client = client;
     }
 
-    public Set<Service> getServices() {
+    public Set<Services> getServices() {
         return services;
     }
-    public void setServices(Set<Service> services) {
+    public void setServices(Set<Services> services) {
         this.services = services;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 }

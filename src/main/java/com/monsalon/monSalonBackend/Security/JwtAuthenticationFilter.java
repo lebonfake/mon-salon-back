@@ -1,6 +1,7 @@
 package com.monsalon.monSalonBackend.Security;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -27,16 +28,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
         String username = null;
         String jwt = null;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-            if (jwtUtil.validateToken(jwt)) {
-                username = jwtUtil.extractUsername(jwt);
+// Get JWT from cookie instead of Authorization header
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                System.out.println(" cookie : "+cookie.getName() + "value : "+ cookie.getValue());
+                if ("jwt".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
             }
         }
+
+
+        if (jwt != null && jwtUtil.validateToken(jwt)) {
+            username = jwtUtil.extractUsername(jwt);
+        }
+        System.out.println(" username  : "+username);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -50,6 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
+        System.out.println("m in filter");
 
         filterChain.doFilter(request, response);
     }

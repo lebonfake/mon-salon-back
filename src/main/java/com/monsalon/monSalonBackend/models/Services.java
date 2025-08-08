@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-public class Service {
+public class Services {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +26,10 @@ public class Service {
     private List<Reservation> reservations;
 
     // Constructors
-    public Service() {
+    public Services() {
     }
 
-    public Service(String name, int durationInMinutes, BigDecimal price, Salon salon) {
+    public Services(String name, int durationInMinutes, BigDecimal price, Salon salon) {
         this.name = name;
         this.durationInMinutes = durationInMinutes;
         this.price = price;

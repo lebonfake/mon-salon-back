@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +24,5 @@ public interface WholeScheduleRepository extends JpaRepository<WholeSchedule,Lon
     @Query("UPDATE WholeSchedule ws SET ws.currentlyUsed = false WHERE ws.salon.id = :salonId AND ws.id != :id")
     void setAllCurrentlyUsedToFalseForSalon(Long salonId,Long id);
 
+    public Optional<WholeSchedule> findByIdAndSalonId(Long id , Long salonId);
 }

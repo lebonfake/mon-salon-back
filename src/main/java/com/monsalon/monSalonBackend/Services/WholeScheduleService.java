@@ -4,6 +4,8 @@ package com.monsalon.monSalonBackend.Services;
 import com.monsalon.monSalonBackend.Dto.planningCreation.AvailablePeriodDto;
 import com.monsalon.monSalonBackend.Dto.planningCreation.RequestPlanningDto;
 import com.monsalon.monSalonBackend.Dto.planningRead.WholeScheduleDto;
+import com.monsalon.monSalonBackend.exceptions.CantHaveNoPlanningEnabledException;
+import com.monsalon.monSalonBackend.exceptions.ResourceNotFoundException;
 import com.monsalon.monSalonBackend.mappers.Mapper;
 import com.monsalon.monSalonBackend.models.AvailabalePeriod;
 import com.monsalon.monSalonBackend.models.Salon;
@@ -16,6 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.lang.module.ResolutionException;
 import java.util.List;
 import java.util.Optional;
 
@@ -104,6 +107,35 @@ public class WholeScheduleService {
             e.printStackTrace(); // Log the full stack trace for debugging
             return false;
         }
+    }
+
+    @Transactional
+    public void ActiverDesactiver(Long id){
+
+        Long salonId = authService.getCurrentUser().getSalon().getId();
+        //check for the planning to enable/disable
+        WholeSchedule wholeSchedule = wholeScheduleRepository.findByIdAndSalonId(id , authService.getCurrentUser().getSalon().getId()).orElseThrow(()->new ResourceNotFoundException("planning","id",id.toString()));
+
+        //if  we will disable it s okay
+        if(wholeSchedule.isCurrentlyUsed()){
+           throw new CantHaveNoPlanningEnabledException("Cant have no enabled planning , try enabling other planning");
+
+        }
+        //if we will enable it we should disable others
+        else{
+            Optional<WholeSchedule> wholeScheduleEnabled = wholeScheduleRepository
+                    .findBySalonIdAndCurrentlyUsed(salonId, true);
+            if(wholeScheduleEnabled.isPresent()){
+                wholeScheduleEnabled.get().setCurrentlyUsed(false);
+                wholeScheduleRepository.save(wholeScheduleEnabled.get());
+            }
+
+            wholeSchedule.setCurrentlyUsed(true);
+
+
+            wholeScheduleRepository.save(wholeSchedule);
+        }
+
     }
 
 }

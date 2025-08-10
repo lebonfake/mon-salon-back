@@ -1,6 +1,7 @@
 package com.monsalon.monSalonBackend.controllers;
 
 
+import com.monsalon.monSalonBackend.Dto.Response;
 import com.monsalon.monSalonBackend.Dto.planningCreation.RequestPlanningDto;
 import com.monsalon.monSalonBackend.Dto.planningRead.WholeScheduleDto;
 import com.monsalon.monSalonBackend.Services.WholeScheduleService;
@@ -33,5 +34,11 @@ public class WholeScheduleController {
    @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deletePlanning(@PathVariable Long id){
         return ResponseEntity.ok(wholeScheduleService.deletePlanning(id));
+   }
+
+   @PatchMapping("/enableDisable/{id}")
+    public  ResponseEntity<Response> disableEnable(@PathVariable  Long id){
+        wholeScheduleService.ActiverDesactiver(id);
+        return ResponseEntity.ok().body(new Response("Le statut du planning est bien changé ","success"));
    }
 }

@@ -138,4 +138,55 @@ public class WholeScheduleService {
 
     }
 
-}
+    public WholeScheduleDto editPlanning(RequestPlanningDto dto, Long id) {
+        try {
+            Salon salon = authService.getCurrentUser().getSalon();
+
+            // 1. Fetch the existing WholeSchedule
+            WholeSchedule existingWholeSchedule = wholeScheduleRepository
+                    .findByIdAndSalonId(id, salon.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Planning", "id", id.toString()));
+
+            if(existingWholeSchedule.isCurrentlyUsed() && !dto.isCurrentlyUsed()){
+
+                    throw new CantHaveNoPlanningEnabledException("Cant have no enabled planning , try enabling other planning");
+
+
+            }
+            // 2. Update top-level properties
+            existingWholeSchedule.setName(dto.getName());
+            existingWholeSchedule.setCurrentlyUsed(dto.isCurrentlyUsed());
+
+            // 3. **IMPORTANT**: Clear and flush first to ensure old schedules are deleted
+            existingWholeSchedule.getSchedules().clear();
+            wholeScheduleRepository.saveAndFlush(existingWholeSchedule); // Force flush to delete old schedules
+
+            // 4. Create new schedules after old ones are definitely removed
+            List<Schedule> newSchedules = dto.getScheduleDtoList().stream()
+                    .map(scheduleDto -> {
+                        Schedule schedule = Mapper.fromDtoToSchedule(scheduleDto);
+                        schedule.setWholeSchedule(existingWholeSchedule);
+                        return schedule;
+                    })
+                    .toList();
+
+            // 5. Add new schedules to the cleared collection
+            existingWholeSchedule.getSchedules().addAll(newSchedules);
+
+            // 6. Final save
+            WholeSchedule saved = wholeScheduleRepository.saveAndFlush(existingWholeSchedule);
+            WholeScheduleDto savedDto = Mapper.fromWholeScheduleToDto(saved);
+
+            // 7. Handle 'currentlyUsed' logic
+            if (dto.isCurrentlyUsed()) {
+                wholeScheduleRepository.setAllCurrentlyUsedToFalseForSalon(salon.getId(), saved.getId());
+            }
+
+            return savedDto;
+
+        } catch (RuntimeException e) {
+            System.err.println("Error editing planning with ID " + id + ": " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }}

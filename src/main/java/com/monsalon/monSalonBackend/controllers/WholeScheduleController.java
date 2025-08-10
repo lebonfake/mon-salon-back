@@ -41,4 +41,13 @@ public class WholeScheduleController {
         wholeScheduleService.ActiverDesactiver(id);
         return ResponseEntity.ok().body(new Response("Le statut du planning est bien changé ","success"));
    }
+
+   @PutMapping("/{id}")
+   public ResponseEntity<WholeScheduleDto> editPlanning(@PathVariable Long id , @RequestBody RequestPlanningDto dto){
+       WholeScheduleDto created = wholeScheduleService.editPlanning(dto,id);
+       if(created != null)
+           return ResponseEntity.ok(created);
+       else
+           return ResponseEntity.badRequest().body(new WholeScheduleDto());
+   }
 }

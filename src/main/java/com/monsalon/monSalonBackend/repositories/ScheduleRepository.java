@@ -11,5 +11,5 @@ import java.util.Optional;
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
-    public Optional<Schedule> findBySalonIdAndDayOfWeek(Long salonId , int dayOfWeek);
+    public Optional<Schedule> findByWholeScheduleIdAndDayOfWeek(Long id,int dayOfWeek);
 }

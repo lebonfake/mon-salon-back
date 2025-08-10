@@ -20,9 +20,9 @@ public class Salon extends BaseEntity {
     @OneToMany(mappedBy = "salon",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Role> roles;
 
-    @OneToOne(mappedBy = "salon")
-    private Schedule schedule;
+    @OneToMany(mappedBy="salon")
 
+    private List<WholeSchedule> wholeSchedule;
     @OneToMany(mappedBy = "salon")
     private List<Client> client;
 
@@ -82,13 +82,6 @@ public class Salon extends BaseEntity {
         this.roles = roles;
     }
 
-    public Schedule getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(Schedule schedule) {
-        this.schedule = schedule;
-    }
 
     public List<Client> getClient() {
         return client;
@@ -96,5 +89,13 @@ public class Salon extends BaseEntity {
 
     public void setClient(List<Client> client) {
         this.client = client;
+    }
+
+    public List<WholeSchedule> getWholeSchedule() {
+        return wholeSchedule;
+    }
+
+    public void setWholeSchedule(List<WholeSchedule> wholeSchedule) {
+        this.wholeSchedule = wholeSchedule;
     }
 }

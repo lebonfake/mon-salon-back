@@ -1,6 +1,11 @@
 package com.monsalon.monSalonBackend.mappers;
 
 import com.monsalon.monSalonBackend.Dto.*;
+import com.monsalon.monSalonBackend.Dto.planningCreation.AvailablePeriodDto;
+import com.monsalon.monSalonBackend.Dto.planningCreation.ScheduleDto;
+import com.monsalon.monSalonBackend.Dto.planningRead.RAvailablePeriodDto;
+import com.monsalon.monSalonBackend.Dto.planningRead.RScheduleDto;
+import com.monsalon.monSalonBackend.Dto.planningRead.WholeScheduleDto;
 import com.monsalon.monSalonBackend.models.*;
 
 import java.util.List;
@@ -32,7 +37,7 @@ public class Mapper {
         userDto.setFullname(user.getFullName());
         userDto.setRoleId(user.getRole().getId());
 
-        List<String> permissions = user.getRole().getPermissions().stream().map(permission->permission.getName()).collect(Collectors.toList());
+        List<String> permissions = user.getRole().getPermissions().stream().map(Permission::getName).collect(Collectors.toList());
         userDto.setPermissions(permissions);
 
         userDto.setPhoneNumber(user.getPhoneNumber());
@@ -72,6 +77,97 @@ public class Mapper {
         reservationDtos.setAvailableTimeSlots(availableTimes);
 
         return reservationDtos;
+    }
+
+    //****************** planning mappers ******************
+    public static AvailabalePeriod FromDtoToAvailablePeriods(AvailablePeriodDto availablePeriodDto){
+        AvailabalePeriod availabalePeriod = new AvailabalePeriod();
+
+        availabalePeriod.setStartTime(availablePeriodDto.getStartTime());
+        availabalePeriod.setEndTime(availablePeriodDto.getEndTime());
+        return availabalePeriod;
+
+    }
+
+    public  static Schedule  fromDtoToSchedule(ScheduleDto scheduleDto){
+        Schedule schedule = new Schedule();
+
+        List<AvailabalePeriod> availablePeriods = scheduleDto.getAvailablePeriodDtoList()
+                .stream()
+                .map(Mapper::FromDtoToAvailablePeriods)
+                .toList();
+
+        // Set the back-reference for each child entity
+        // This is the crucial missing step
+        availablePeriods.forEach(period -> period.setSchedule(schedule));
+        schedule.setWork(scheduleDto.isWork());
+        schedule.setAvailabalePeriods(availablePeriods);
+        schedule.setMaxConcurrentBookings(scheduleDto.getMaxConcurrentBookings());
+        schedule.setDayOfWeek(scheduleDto.getDayOfWeek());
+
+        return schedule;
+
+    }
+
+
+    public static RAvailablePeriodDto fromAvailablePeriodToDto(AvailabalePeriod availabalePeriod) {
+        if (availabalePeriod == null) {
+            return null;
+        }
+
+        RAvailablePeriodDto dto = new RAvailablePeriodDto();
+        dto.setId(availabalePeriod.getId());
+        dto.setStartTime(availabalePeriod.getStartTime());
+        dto.setEndTime(availabalePeriod.getEndTime());
+        return dto;
+    }
+    //------------------------------------------------------------------------------------------------------------------------------------
+    public static RScheduleDto fromScheduleToDto(Schedule schedule) {
+        if (schedule == null) {
+            return null;
+        }
+
+        RScheduleDto dto = new RScheduleDto();
+        dto.setId(schedule.getId());
+        dto.setDayOfWeek(schedule.getDayOfWeek());
+        dto.setMaxConcurrentBookings(schedule.getMaxConcurrentBookings());
+        dto.setWork(schedule.isWork());
+
+        // Map the list of available periods
+        if (schedule.getAvailabalePeriods() != null) {
+            dto.setAvailabalePeriods(
+                    schedule.getAvailabalePeriods().stream()
+                            .map(Mapper::fromAvailablePeriodToDto)
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return dto;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------
+    public static WholeScheduleDto fromWholeScheduleToDto(WholeSchedule wholeSchedule) {
+        if (wholeSchedule == null) {
+            return null;
+        }
+
+        WholeScheduleDto dto = new WholeScheduleDto();
+        dto.setId(wholeSchedule.getId());
+        dto.setName(wholeSchedule.getName());
+        dto.setCurrentlyUsed(wholeSchedule.isCurrentlyUsed());
+
+        // Map the Salon
+
+        // Map the list of schedules
+        if (wholeSchedule.getSchedules() != null) {
+            dto.setSchedules(
+                    wholeSchedule.getSchedules().stream()
+                            .map(Mapper::fromScheduleToDto)
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return dto;
     }
 
 

@@ -28,6 +28,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        System.out.println("recieved request");
+
         String username = null;
         String jwt = null;
 
@@ -35,8 +37,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                System.out.println(" cookie : "+cookie.getName() + "value : "+ cookie.getValue());
+
                 if ("jwt".equals(cookie.getName())) {
+                    System.out.println("is jwt found in cookie : "+"jwt".equals(cookie.getValue()));
                     jwt = cookie.getValue();
                     break;
                 }
@@ -47,7 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (jwt != null && jwtUtil.validateToken(jwt)) {
             username = jwtUtil.extractUsername(jwt);
         }
-        System.out.println(" username  : "+username);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -61,7 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-        System.out.println("m in filter");
+
+        System.out.println(" go to controller found user: "+username);
 
         filterChain.doFilter(request, response);
     }

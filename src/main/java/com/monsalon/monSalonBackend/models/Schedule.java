@@ -13,9 +13,9 @@ public class Schedule extends BaseEntity{
     private int dayOfWeek;
     private int maxConcurrentBookings;
     private boolean work;
-    @OneToOne
-    @JoinColumn(name = "salon_id")
-    private Salon salon;
+    @ManyToOne
+    @JoinColumn(name="wholeSchedule_id")
+    private WholeSchedule wholeSchedule;
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvailabalePeriod> availabalePeriods;
@@ -52,13 +52,6 @@ public class Schedule extends BaseEntity{
         this.work = work;
     }
 
-    public Salon getSalon() {
-        return salon;
-    }
-
-    public void setSalon(Salon salon) {
-        this.salon = salon;
-    }
 
     public List<AvailabalePeriod> getAvailabalePeriods() {
         return availabalePeriods;
@@ -66,5 +59,13 @@ public class Schedule extends BaseEntity{
 
     public void setAvailabalePeriods(List<AvailabalePeriod> availabalePeriods) {
         this.availabalePeriods = availabalePeriods;
+    }
+
+    public WholeSchedule getWholeSchedule() {
+        return wholeSchedule;
+    }
+
+    public void setWholeSchedule(WholeSchedule wholeSchedule) {
+        this.wholeSchedule = wholeSchedule;
     }
 }

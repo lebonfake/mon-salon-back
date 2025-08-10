@@ -1,17 +1,19 @@
 package com.monsalon.monSalonBackend.controllers;
 
+import com.monsalon.monSalonBackend.Dto.reservationCreateDto.ReservationCreateDto;
+import com.monsalon.monSalonBackend.Dto.reservationReadDto.ReservationReadDto;
 import com.monsalon.monSalonBackend.Services.AuthService;
 import com.monsalon.monSalonBackend.Services.ReservationsService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -48,4 +50,36 @@ public class ReservationController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    /**
+     * Creates a new reservation. The method includes re-checking time slot
+     * availability and validating end time based on service durations.
+     * POST /api/v1/reservations
+     * @param createDto The DTO containing the reservation details.
+     * @return ResponseEntity with the created ReservationReadDto and HTTP status 201 (Created).
+     */
+    @PostMapping
+    public ResponseEntity<ReservationReadDto> createReservation(@Valid @RequestBody ReservationCreateDto createDto) {
+
+        System.out.println(createDto.getServiceIds().toString());
+        ReservationReadDto createdReservation = reservationsService.createReservation(createDto);
+        return new ResponseEntity<>(createdReservation, HttpStatus.CREATED);
+    }
+
+    /**
+     * Retrieves all reservations for the authenticated salon.
+     * GET /api/v1/reservations
+     * @return ResponseEntity with a list of ReservationReadDto and HTTP status 200 (OK).
+     */
+    @GetMapping // Handles GET requests to /api/v1/reservations
+    public ResponseEntity<List<ReservationReadDto>> getAllReservations() {
+        List<ReservationReadDto> reservations = reservationsService.getAllReservationsForSalon();
+        return ResponseEntity.ok(reservations);
+    }
+
+    @GetMapping("/salonId")
+    public ResponseEntity<?> getSalonId(){
+        Long salonId = authService.getSalonId();
+        return ResponseEntity.ok(salonId);
+    }
+
 }

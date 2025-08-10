@@ -71,6 +71,10 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    public Long getSalonId(){
+        return getCurrentUser().getSalon().getId();
+    }
+
 
 
 }

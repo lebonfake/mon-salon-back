@@ -62,6 +62,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody SignupRequest user){
+        System.out.println(" wslt register");
         User newUser = authService.registerUser(user);
         return ResponseEntity.ok(newUser);
 
@@ -90,7 +91,7 @@ public class AuthController {
         }
 
         // verifying the token
-
+        System.out.println(token);
         if(token != null && jwtUtil.validateToken(token)){
            ;
             String phoneNumber  = jwtUtil.extractUsername(token);
@@ -104,4 +105,6 @@ public class AuthController {
 
         // returning response
     }
+
+
 }

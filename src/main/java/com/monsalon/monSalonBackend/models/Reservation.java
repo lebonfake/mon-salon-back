@@ -42,9 +42,9 @@ public class Reservation {
     @JoinTable(
             name = "reservation_service",
             joinColumns = @JoinColumn(name = "reservation_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_id")
+            inverseJoinColumns = @JoinColumn(name = "services_id")
     )
-    private Set<Services> services = new HashSet<>();
+    private Set<Services> services;
 
     // Constructors
     public Reservation() {}
